@@ -98,3 +98,138 @@ Fourth, tracing a **single feature from start to finish** is an effective way to
 Finally, using structured AI prompts helped guide my investigation by encouraging me to form hypotheses, ask targeted questions, and validate my understanding.
 
 In the future, I plan to apply this structured exploration process whenever I encounter a new codebase to build an accurate mental model more quickly.
+
+### CODE UNDERSTANDING JOURNAL - TASK MANAGER
+
+Language: Python
+Date: 2026-03-05
+Author: [Simphiwe]
+
+## PART 1: UNDERSTANDING TASK CREATION and STATUS UPDATES
+
+Key Files:
+
+File	Purpose
+task_manager.py	Handles task creation, updates, and business logic
+models.py	Defines domain entities: Task, TaskStatus, TaskPriority
+storage.py	Persists tasks to tasks.json
+
+# RELEVANT CODE SNIPPET – TASK CREATION:
+
+def create_task(self, title, description="", priority_value=2,
+               due_date_str=None, tags=None):
+    priority = TaskPriority(priority_value)
+    due_date = datetime.strptime(due_date_str, "%Y-%m-%d") if due_date_str else None
+    task = Task(title, description, priority, due_date, tags)
+    task_id = self.storage.add_task(task)
+    return task_id
+
+RELEVANT CODE SNIPPET – STATUS UPDATE:
+
+def update_task_status(self, task_id, new_status_value):
+    new_status = TaskStatus(new_status_value)
+    task = self.storage.get_task(task_id)
+    if new_status == TaskStatus.DONE:
+        task.mark_as_done()
+    self.storage.update_task(task_id, status=new_status)
+    self.storage.save()
+
+# EXECUTION FLOW – TASK CREATION:
+
+CLI Command → TaskManager.create_task() → Task object created → TaskStorage.add_task() → tasks.json updated
+
+EXECUTION FLOW – TASK CREATION:
+
+CLI Command → TaskManager.update_task_status() → Task.mark_as_done() → TaskStorage.save()
+
+DESIGN PATTERNS OBSERVED:
+
+Service Layer: TaskManager separates business logic from CLI and storage
+
+Repository Pattern: TaskStorage abstracts persistence
+
+Domain Model: Task, TaskStatus, TaskPriority encapsulate core entities
+
+## PART 2: TASK PRIORITIZATION INSIGHTS
+
+# Initial Understanding: Priority seemed numeric; now clarified as an enum (LOW, MEDIUM, HIGH, URGENT) that influences filtering and business rules.
+
+KEY INSIGHTS:
+
+Enums enforce valid values
+
+Priority affects auto-abandon logic and task listing order
+
+Misconception corrected: priority is not just cosmetic, it drives behavior
+
+## PART 3: DATA FLOW – TASK COMPLETION
+
+# DATA FLOW DIAGRAM:
+
+User CLI Command
+        ↓
+   TaskManager
+        ↓
+   Task Object
+        ↓
+TaskStorage
+        ↓
+   tasks.json
+
+State Changes:
+
+Field	Before	After
+status	IN_PROGRESS	DONE
+completed_at	None	Current timestamp
+
+Potential Failure Points:
+
+Invalid task ID
+
+Corrupted JSON file
+
+Storage save failure
+
+## PART 4: REFLECTION and INSIGHTS
+
+# Architecture Overview:
+
+CLI / Entry → TaskManager (Service Layer) → Task / Domain Entities → TaskStorage → tasks.json
+
+Three Key Features:
+
+Task Creation: validated, persisted, added to storage
+
+Task Prioritization: enum-based, drives filtering and business rules
+
+Task Completion: updates status and timestamp, persists changes
+
+Interesting Design Pattern: Layered architecture separates CLI, business logic, and storage, improving maintainability.
+
+# Challenges & How AI Prompts Helped:
+
+Understanding module interactions – AI prompts clarified responsibilities
+
+Tracking data flow – diagrams visualized state changes
+
+Domain logic – prompts highlighted enum usage and business rules
+
+Next Steps:
+
+Explore tag management and filtering
+
+Validate understanding via small code modifications
+
+Draw additional diagrams for complex workflows
+
+# Expected Outcomes Achieved:
+
+Explain high-level workflow and architecture
+
+Describe data flow for task creation, prioritization, and completion
+
+Understand state management and persistence
+
+Use AI prompts effectively for unfamiliar code exploration
+
+Identify which prompt strategies work best for specific tasks

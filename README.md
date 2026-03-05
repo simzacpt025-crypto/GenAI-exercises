@@ -99,7 +99,7 @@ Finally, using structured AI prompts helped guide my investigation by encouragin
 
 In the future, I plan to apply this structured exploration process whenever I encounter a new codebase to build an accurate mental model more quickly.
 
-### CODE UNDERSTANDING JOURNAL - TASK MANAGER
+# CODE UNDERSTANDING JOURNAL - TASK MANAGER
 
 Language: Python
 Date: 2026-03-05
@@ -114,7 +114,7 @@ task_manager.py	Handles task creation, updates, and business logic
 models.py	Defines domain entities: Task, TaskStatus, TaskPriority
 storage.py	Persists tasks to tasks.json
 
-# RELEVANT CODE SNIPPET – TASK CREATION:
+### RELEVANT CODE SNIPPET – TASK CREATION:
 
 def create_task(self, title, description="", priority_value=2,
                due_date_str=None, tags=None):
@@ -134,7 +134,7 @@ def update_task_status(self, task_id, new_status_value):
     self.storage.update_task(task_id, status=new_status)
     self.storage.save()
 
-# EXECUTION FLOW – TASK CREATION:
+### EXECUTION FLOW – TASK CREATION:
 
 CLI Command → TaskManager.create_task() → Task object created → TaskStorage.add_task() → tasks.json updated
 
@@ -152,7 +152,7 @@ Domain Model: Task, TaskStatus, TaskPriority encapsulate core entities
 
 ## PART 2: TASK PRIORITIZATION INSIGHTS
 
-# Initial Understanding: Priority seemed numeric; now clarified as an enum (LOW, MEDIUM, HIGH, URGENT) that influences filtering and business rules.
+### Initial Understanding: Priority seemed numeric; now clarified as an enum (LOW, MEDIUM, HIGH, URGENT) that influences filtering and business rules.
 
 KEY INSIGHTS:
 
@@ -164,7 +164,7 @@ Misconception corrected: priority is not just cosmetic, it drives behavior
 
 ## PART 3: DATA FLOW – TASK COMPLETION
 
-# DATA FLOW DIAGRAM:
+### DATA FLOW DIAGRAM:
 
 User CLI Command
         ↓
@@ -192,7 +192,7 @@ Storage save failure
 
 ## PART 4: REFLECTION and INSIGHTS
 
-# Architecture Overview:
+### Architecture Overview:
 
 CLI / Entry → TaskManager (Service Layer) → Task / Domain Entities → TaskStorage → tasks.json
 

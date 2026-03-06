@@ -1,3 +1,4 @@
+<img width="1263" height="4071" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/633452f0-ca5f-4bc8-b4f1-658235a2ee82" />
 # GenAI-exercise
 
 # DISCOVERY-NOTES

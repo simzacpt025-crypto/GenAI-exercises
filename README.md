@@ -1,5 +1,3 @@
-# GenAI-exercise
-
 # DISCOVERY-NOTES
 
 

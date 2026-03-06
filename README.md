@@ -3,7 +3,7 @@
 # DISCOVERY-NOTES
 
 
-# Task Manager Codebase Exploration Summary
+## Task Manager Codebase Exploration Summary
 
 ## 1. Initial vs. Final Understanding of the Codebase
 
@@ -206,30 +206,133 @@ Task Completion: updates status and timestamp, persists changes
 
 Interesting Design Pattern: Layered architecture separates CLI, business logic, and storage, improving maintainability.
 
-# Challenges & How AI Prompts Helped:
 
-Understanding module interactions – AI prompts clarified responsibilities
+# Understanding Complex Function Analysis
 
-Tracking data flow – diagrams visualized state changes
+## Function Signature Analysis
 
-Domain logic – prompts highlighted enum usage and business rules
+Purpose: Identify the inputs, outputs, and high-level purpose of the function.
 
-Next Steps:
+Example Visual:
 
-Explore tag management and filtering
+Function: calculate_task_score(task)
+-----------------------------------
+Input: task (object with priority, due_date, status, tags, updated_at)
+Output: integer score
+High-level purpose: quantify task importance
 
-Validate understanding via small code modifications
+### Insights:
 
-Draw additional diagrams for complex workflows
+Always start with what goes in and what comes out.
 
-# Expected Outcomes Achieved:
+The function name often gives a clue about its primary responsibility.
 
-Explain high-level workflow and architecture
+## Split Function into Logical Sections
 
-Describe data flow for task creation, prioritization, and completion
+Purpose: Break the code into meaningful blocks to understand each step.
 
-Understand state management and persistence
+Diagram:
 
-Use AI prompts effectively for unfamiliar code exploration
++---------------------+
+| Initialization      |
+| (setup variables)   |
++---------------------+
+           |
+           v
++---------------------+
+| Core Computation    |
+| (loops, calculations)|
++---------------------+
+           |
+           v
++---------------------+
+| Conditionals        |
+| (if/else, rules)    |
++---------------------+
+           |
+           v
++---------------------+
+| Aggregation/Output  |
+| (sorting, scoring)  |
++---------------------+
+           |
+           v
++---------------------+
+| Return Statement    |
++---------------------+
 
-Identify which prompt strategies work best for specific tasks
+### Insights:
+
+Visualizing the flow from initialization → computation → return helps track data transformations.
+
+Each block usually has a single responsibility, making it easier to debug or optimize.
+
+## Annotate Each Section in Plain Language
+
+Example:
+
+1. Base score from priority
+2. Adjust score for due date
+3. Penalize completed/reviewed tasks
+4. Boost for special tags
+5. Bonus for recent updates
+6. Return total score
+
+### Insights:
+
+Translating code into plain language steps helps identify what the algorithm is actually doing, not just what Python syntax says.
+
+Makes it easier to explain to others or write documentation.
+
+## Identify Optimizations or Tricks
+
+### Example Observations from AI Explanation:
+
+Using sets for tag membership → faster than lists.
+
+Storing datetime.now() once → avoids repeated calls.
+
+.days vs .total_seconds() → more accurate time comparisons.
+
+Sorting with key=calculate_task_score → avoids building extra tuples.
+
+### Insights:
+
+Small tweaks can improve performance and accuracy.
+
+Look for hidden assumptions, like task.tags always existing or task.updated_at not being None.
+
+## Learning Points Summary
+
+High-level purpose first: Know inputs, outputs, and intended effect.
+
+Break into blocks: Identify initialization, core computation, branching, aggregation, and return.
+
+Translate to plain language: Clarifies algorithm’s intent.
+
+Spot optimizations: Recognize subtle tricks for speed, accuracy, or clarity.
+
+Edge cases matter: Null values, overdue dates, or empty lists can break assumptions.
+
+Reusability: This structured approach works for any complex function.
+
+### Optional Flow Diagram of Analysis Process
+[Start: Function]
+      |
+      v
+[Identify Signature]
+      |
+      v
+[Split into Sections]
+      |
+      v
+[Annotate in Plain Language]
+      |
+      v
+[Check for Tricks/Optimizations]
+      |
+      v
+[Document Insights & Edge Cases]
+      |
+      v
+[End: Full Understanding]

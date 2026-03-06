@@ -376,6 +376,7 @@ original_code.py	The original function selected for documentation
 prompt1_documentation.md	Documentation generated using Prompt 1
 prompt2_insights.md	Insights and improvements identified using Prompt 2
 README.md	Final combined documentation and summary
+
 ### 1. Original Code
 
 The following function merges task lists from local and remote sources and determines synchronization actions.
@@ -422,9 +423,8 @@ def merge_task_lists(local_tasks, remote_tasks):
         to_update_local
     )
 ## 2. Documentation Generated Using Prompt 1
-Function Purpose
-
-The merge_task_lists function merges tasks from two data sources:
+### Function Purpose
+The `merge_task_lists` function merges tasks from two data sources:
 
 Local task storage
 
@@ -432,10 +432,10 @@ Remote task storage
 
 The function creates a single merged view of tasks while determining which updates must occur to keep both sources synchronized.
 
-Inputs
+### Inputs
 Parameter	Type	Description
-local_tasks	Dictionary	Tasks stored locally
-remote_tasks	Dictionary	Tasks stored on the server
+`local_tasks`	Dictionary	Tasks stored locally
+`remote_tasks`	Dictionary	Tasks stored on the server
 
 Each dictionary uses the format:
 
@@ -446,11 +446,12 @@ task_id → Task object
 The function returns five dictionaries.
 
 Output	Description
-merged_tasks	Final combined task list
-to_create_remote	Tasks that must be created on the server
-to_update_remote	Tasks that must be updated on the server
-to_create_local	Tasks that must be created locally
-to_update_local	Tasks that must be updated locally
+`merged_tasks`	Final combined task list
+`to_create_remote`	Tasks that must be created on the server
+`to_update_remote`	Tasks that must be updated on the server
+`to_create_local`	Tasks that must be created locally
+`to_update_local`	Tasks that must be updated locally
+
 Algorithm Workflow
 
 <img width="1241" height="1700" alt="mermaid-diagram (2)" src="https://github.com/user-attachments/assets/a1474064-3c14-4621-b875-7c972b8eebe1" />
@@ -460,7 +461,7 @@ Algorithm Workflow
 
 After analyzing the generated documentation, several insights and improvements were identified.
 
-### Improvement 1 — Explicit None Checks
+### Improvement 1 — Explicit `None` Checks
 
 Original code:
 
@@ -470,11 +471,11 @@ Improved version:
 
 if local_task is not None and remote_task is None
 
-This avoids errors if objects evaluate to False.
+This avoids errors if objects evaluate to `False`.
 
 ### Improvement 2 — Safer Tag Handling
 
-If a task contains tags = None, converting it to a set will fail.
+If a task contains `tags = None`, converting it to a set will fail.
 
 Improved implementation:
 
@@ -518,34 +519,34 @@ Title updated	Priority updated
 Field-level merging preserves both updates.
 
 ## 4. Final Combined Documentation
-System Overview
+### System Overview
 
-The merge_task_lists function performs two-way task synchronization between local and remote data sources.
+The `merge_task_lists` function performs two-way task synchronization between local and remote data sources.
 
 It generates a merged task list and a set of actions required to synchronize both systems.
 
-High-Level Architecture
+### High-Level Architecture
 
 <img width="2084" height="519" alt="mermaid-diagram (1)" src="https://github.com/user-attachments/assets/f146a420-5af1-4fae-8d61-bd39d1304589" />
 
-Synchronization Rules
+### Synchronization Rules
 Scenario	Action
 Task only exists locally	Create remotely
 Task only exists remotely	Create locally
 Task exists in both	Resolve conflict
-Conflict Resolution Strategy
 
-The resolve_task_conflict function uses the following rules:
+### Conflict Resolution Strategy
+The `resolve_task_conflict` function uses the following rules:
 
 Latest Update Wins
 
-The task with the newest updated_at timestamp overwrites older data.
+The task with the newest `updated_at` timestamp overwrites older data.
 
-Completion Status Overrides
+### Completion Status Overrides
 
 If one task is marked as completed, the merged result will also be completed.
 
-Tags Are Merged
+### Tags Are Merged
 
 Tags from both tasks are combined.
 
@@ -560,18 +561,4 @@ Type	Complexity
 Time Complexity	O(n)
 Space Complexity	O(n)
 
-Where n is the total number of unique tasks.
-
-### Key Learning Outcomes
-
-This exercise demonstrated several important lessons:
-
-AI tools can accelerate technical documentation
-
-Clear documentation improves code readability and maintainability
-
-Visual diagrams help developers understand complex algorithms
-
-Human review is essential for identifying edge cases and improvements
-
-By combining AI-generated explanations with manual analysis, developers can produce high-quality documentation more efficiently.
+Where n IS THE TOTAL NUMBER OF UNIQUE TASKS.

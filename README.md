@@ -334,3 +334,244 @@ Reusability: This structured approach works for any complex function.
       |
       v
 [End: Full Understanding]
+
+
+# AI Code Documentation
+
+## Overview
+
+This project demonstrates how AI-assisted documentation can be used to understand and explain existing code. The goal of the exercise was to analyze a piece of Python code, generate documentation using AI prompts, identify improvements, and produce a refined version of the documentation.
+
+The selected code implements a two-way synchronization algorithm used to merge task lists from a local system and a remote system.
+
+This type of algorithm is commonly used in:
+
+Offline-first applications
+
+Distributed systems
+
+Multi-device productivity apps
+
+Cloud synchronization services
+
+The exercise demonstrates how AI can assist developers in:
+
+Understanding unfamiliar code
+
+Generating documentation quickly
+
+Identifying potential improvements
+
+Creating clearer explanations of complex logic
+
+Repository Structure
+AI-Documentation-Exercise
+│
+├── original_code.py
+├── prompt1_documentation.md
+├── prompt2_insights.md
+└── README.md
+File	Description
+original_code.py	The original function selected for documentation
+prompt1_documentation.md	Documentation generated using Prompt 1
+prompt2_insights.md	Insights and improvements identified using Prompt 2
+README.md	Final combined documentation and summary
+### 1. Original Code
+
+The following function merges task lists from local and remote sources and determines synchronization actions.
+
+def merge_task_lists(local_tasks, remote_tasks):
+    merged_tasks = {}
+    to_create_remote = {}
+    to_update_remote = {}
+    to_create_local = {}
+    to_update_local = {}
+
+    all_task_ids = set(local_tasks.keys()) | set(remote_tasks.keys())
+
+    for task_id in all_task_ids:
+        local_task = local_tasks.get(task_id)
+        remote_task = remote_tasks.get(task_id)
+
+        if local_task and not remote_task:
+            merged_tasks[task_id] = local_task
+            to_create_remote[task_id] = local_task
+
+        elif not local_task and remote_task:
+            merged_tasks[task_id] = remote_task
+            to_create_local[task_id] = remote_task
+
+        else:
+            merged_task, update_local, update_remote = resolve_task_conflict(
+                local_task, remote_task
+            )
+
+            merged_tasks[task_id] = merged_task
+
+            if update_local:
+                to_update_local[task_id] = merged_task
+
+            if update_remote:
+                to_update_remote[task_id] = merged_task
+
+    return (
+        merged_tasks,
+        to_create_remote,
+        to_update_remote,
+        to_create_local,
+        to_update_local
+    )
+## 2. Documentation Generated Using Prompt 1
+Function Purpose
+
+The merge_task_lists function merges tasks from two data sources:
+
+Local task storage
+
+Remote task storage
+
+The function creates a single merged view of tasks while determining which updates must occur to keep both sources synchronized.
+
+Inputs
+Parameter	Type	Description
+local_tasks	Dictionary	Tasks stored locally
+remote_tasks	Dictionary	Tasks stored on the server
+
+Each dictionary uses the format:
+
+task_id → Task object
+
+### Outputs
+
+The function returns five dictionaries.
+
+Output	Description
+merged_tasks	Final combined task list
+to_create_remote	Tasks that must be created on the server
+to_update_remote	Tasks that must be updated on the server
+to_create_local	Tasks that must be created locally
+to_update_local	Tasks that must be updated locally
+Algorithm Workflow
+
+<img width="1241" height="1700" alt="mermaid-diagram (2)" src="https://github.com/user-attachments/assets/a1474064-3c14-4621-b875-7c972b8eebe1" />
+
+
+## 3. Insights and Improvements (Prompt 2)
+
+After analyzing the generated documentation, several insights and improvements were identified.
+
+### Improvement 1 — Explicit None Checks
+
+Original code:
+
+if local_task and not remote_task
+
+Improved version:
+
+if local_task is not None and remote_task is None
+
+This avoids errors if objects evaluate to False.
+
+### Improvement 2 — Safer Tag Handling
+
+If a task contains tags = None, converting it to a set will fail.
+
+Improved implementation:
+
+set(local_task.tags or [])
+
+This ensures tags are always processed safely.
+
+### Improvement 3 — Timestamp Synchronization Issues
+
+The algorithm assumes:
+
+The latest timestamp wins
+
+Potential issue:
+
+If system clocks differ, incorrect merges may occur.
+
+Possible improvements:
+
+Server-authoritative timestamps
+
+Vector clocks
+
+Conflict history tracking
+
+### Improvement 4 — Field-Level Conflict Resolution
+
+Current approach:
+
+Newest version replaces entire task
+
+Better approach:
+
+Merge individual fields.
+
+Example:
+
+Local Change	Remote Change
+Title updated	Priority updated
+
+Field-level merging preserves both updates.
+
+## 4. Final Combined Documentation
+System Overview
+
+The merge_task_lists function performs two-way task synchronization between local and remote data sources.
+
+It generates a merged task list and a set of actions required to synchronize both systems.
+
+High-Level Architecture
+
+<img width="2084" height="519" alt="mermaid-diagram (1)" src="https://github.com/user-attachments/assets/f146a420-5af1-4fae-8d61-bd39d1304589" />
+
+Synchronization Rules
+Scenario	Action
+Task only exists locally	Create remotely
+Task only exists remotely	Create locally
+Task exists in both	Resolve conflict
+Conflict Resolution Strategy
+
+The resolve_task_conflict function uses the following rules:
+
+Latest Update Wins
+
+The task with the newest updated_at timestamp overwrites older data.
+
+Completion Status Overrides
+
+If one task is marked as completed, the merged result will also be completed.
+
+Tags Are Merged
+
+Tags from both tasks are combined.
+
+Example:
+
+Local tags: {work, urgent}
+Remote tags: {urgent, client}
+
+Merged tags: {work, urgent, client}
+Complexity Analysis
+Type	Complexity
+Time Complexity	O(n)
+Space Complexity	O(n)
+
+Where n is the total number of unique tasks.
+
+### Key Learning Outcomes
+
+This exercise demonstrated several important lessons:
+
+AI tools can accelerate technical documentation
+
+Clear documentation improves code readability and maintainability
+
+Visual diagrams help developers understand complex algorithms
+
+Human review is essential for identifying edge cases and improvements
+
+By combining AI-generated explanations with manual analysis, developers can produce high-quality documentation more efficiently.

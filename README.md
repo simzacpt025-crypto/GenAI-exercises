@@ -562,3 +562,413 @@ Time Complexity	O(n)
 Space Complexity	O(n)
 
 Where n IS THE TOTAL NUMBER OF UNIQUE TASKS.
+
+# Documentatiom API
+
+### 1. Original API Endpoint Code
+
+This is the endpoint that was documented.
+
+@app.route('/api/users/register', methods=['POST'])
+def register_user():
+    """Register a new user"""
+    data = request.get_json()
+
+    # Validate required fields
+    required_fields = ['username', 'email', 'password']
+    for field in required_fields:
+        if field not in data:
+            return jsonify({
+                'error': 'Missing required field',
+                'message': f'{field} is required'
+            }), 400
+
+    # Check if username or email already exists
+    if User.query.filter_by(username=data['username']).first():
+        return jsonify({
+            'error': 'Username taken',
+            'message': 'Username is already in use'
+        }), 409
+
+    if User.query.filter_by(email=data['email']).first():
+        return jsonify({
+            'error': 'Email exists',
+            'message': 'An account with this email already exists'
+        }), 409
+
+    # Validate email format
+    if not re.match(r"^[^@]+@[^@]+\.[^@]+$", data['email']):
+        return jsonify({
+            'error': 'Invalid email',
+            'message': 'Please provide a valid email address'
+        }), 400
+
+    # Validate password strength
+    if len(data['password']) < 8:
+        return jsonify({
+            'error': 'Weak password',
+            'message': 'Password must be at least 8 characters long'
+        }), 400
+
+    try:
+        password_hash = generate_password_hash(data['password'])
+
+        new_user = User(
+            username=data['username'],
+            email=data['email'].lower(),
+            password_hash=password_hash,
+            created_at=datetime.utcnow(),
+            role='user'
+        )
+
+        db.session.add(new_user)
+        db.session.commit()
+
+        confirmation_token = generate_confirmation_token(new_user.id)
+
+        try:
+            send_confirmation_email(new_user.email, confirmation_token)
+        except Exception as e:
+            app.logger.error(f"Failed to send confirmation email: {str(e)}")
+
+        user_data = {
+            'id': new_user.id,
+            'username': new_user.username,
+            'email': new_user.email,
+            'created_at': new_user.created_at.isoformat(),
+            'role': new_user.role
+        }
+
+        return jsonify({
+            'message': 'User registered successfully',
+            'user': user_data
+        }), 201
+
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Error registering user: {str(e)}")
+        return jsonify({
+            'error': 'Server error',
+            'message': 'Failed to register user'
+        }), 500
+### 2. Comprehensive Endpoint Documentation (Prompt 1)
+Endpoint
+
+POST /api/users/register
+
+Description
+
+Registers a new user account. The endpoint validates user input, checks for duplicate usernames or emails, hashes the password securely, and stores the new user in the database. After successful registration, a confirmation email is sent to verify the account.
+
+Request Body
+Field	Type	Required	Description
+username	string	Yes	Unique username for the account
+email	string	Yes	Valid email address
+password	string	Yes	Password with minimum length of 8 characters
+Example Request
+{
+  "username": "john_doe",
+  "email": "john@example.com",
+  "password": "SecurePass123"
+}
+Response
+Success Response
+
+Status Code: 201 Created
+
+{
+  "message": "User registered successfully",
+  "user": {
+    "id": 15,
+    "username": "john_doe",
+    "email": "john@example.com",
+    "created_at": "2026-03-10T12:30:00",
+    "role": "user"
+  }
+}
+Error Responses
+Missing Required Field
+
+Status: 400 Bad Request
+
+{
+  "error": "Missing required field",
+  "message": "username is required"
+}
+Invalid Email
+
+Status: 400 Bad Request
+
+{
+  "error": "Invalid email",
+  "message": "Please provide a valid email address"
+}
+Weak Password
+
+Status: 400 Bad Request
+
+{
+  "error": "Weak password",
+  "message": "Password must be at least 8 characters long"
+}
+Username Already Exists
+
+Status: 409 Conflict
+
+{
+  "error": "Username taken",
+  "message": "Username is already in use"
+}
+Email Already Exists
+
+Status: 409 Conflict
+
+{
+  "error": "Email exists",
+  "message": "An account with this email already exists"
+}
+Server Error
+
+Status: 500 Internal Server Error
+
+{
+  "error": "Server error",
+  "message": "Failed to register user"
+}
+### 3. Converted Documentation Format (Prompt 2)
+OpenAPI / Swagger Format
+paths:
+  /api/users/register:
+    post:
+      summary: Register a new user
+      description: Creates a new user account and sends a confirmation email.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - email
+                - password
+              properties:
+                username:
+                  type: string
+                  example: john_doe
+                email:
+                  type: string
+                  format: email
+                  example: john@example.com
+                password:
+                  type: string
+                  example: SecurePass123
+      responses:
+        "201":
+          description: User registered successfully
+        "400":
+          description: Invalid request
+        "409":
+          description: Duplicate username or email
+        "500":
+          description: Server error
+
+High-Level System Architecture Diagram
+
+This shows how the frontend, API, database, and email service interact.
+
+                    +----------------------+
+                    |      Frontend        |
+                    | (Web / Mobile App)   |
+                    +----------+-----------+
+                               |
+                               | HTTPS Request
+                               | POST /api/users/register
+                               ▼
+                    +----------------------+
+                    |      Flask API       |
+                    |   (REST Backend)     |
+                    +----------+-----------+
+                               |
+             +-----------------+------------------+
+             |                                    |
+             ▼                                    ▼
+   +--------------------+              +----------------------+
+   |  Authentication &  |              |  Email Service       |
+   |  Validation Layer  |              |  (SMTP / Mail API)   |
+   +----------+---------+              +----------+-----------+
+              |                                   |
+              | Validate Input                    |
+              ▼                                   |
+   +--------------------+                         |
+   |  Business Logic    |-------------------------+
+   |  User Registration |
+   +----------+---------+
+              |
+              | Store User Data
+              ▼
+      +--------------------+
+      |     Database       |
+      |  (Users Table)     |
+      +--------------------+
+
+Explanation for the report:
+
+*The frontend client sends a registration request.
+
+*The Flask API processes the request.
+
+*The validation layer checks required fields and formats.
+
+*The business logic layer handles password hashing and user creation.
+
+*The database stores user information.
+
+*The email service sends the confirmation email.
+
+### 4. Developer Usage Guide (Prompt 3)
+Registering a User
+
+To register a new user, send a POST request to:
+
+/api/users/register
+Example Using cURL
+curl -X POST http://localhost:5000/api/users/register \
+-H "Content-Type: application/json" \
+-d '{
+"username":"john_doe",
+"email":"john@example.com",
+"password":"SecurePass123"
+}'
+Example Using JavaScript (Fetch)
+fetch("/api/users/register", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    username: "john_doe",
+    email: "john@example.com",
+    password: "SecurePass123"
+  })
+})
+.then(res => res.json())
+.then(data => console.log(data));
+Expected Workflow
+
+Client sends registration request.
+
+API validates input fields.
+
+API checks for duplicate username/email.
+
+Password is securely hashed.
+
+User record is stored in the database.
+
+Confirmation email is sent.
+
+API returns user details.
+
+ # API Sequence Diagram
+
+This is commonly used in technical documentation to show the order of interactions.
+
+Client            API Server            Database           Email Service
+  |                    |                     |                     |
+  | POST /register     |                     |                     |
+  |------------------->|                     |                     |
+  |                    | Validate Input      |                     |
+  |                    |-------------------->|                     |
+  |                    | Check Username      |                     |
+  |                    |<--------------------|                     |
+  |                    | Check Email         |                     |
+  |                    |-------------------->|                     |
+  |                    |<--------------------|                     |
+  |                    | Hash Password       |                     |
+  |                    | Store User          |                     |
+  |                    |-------------------->|                     |
+  |                    |<--------------------|                     |
+  |                    | Generate Token      |                     |
+  |                    | Send Email          |-------------------->|
+  |                    |                     |                     |
+  | 201 Created        |                     |                     |
+  |<-------------------|                     |                     |
+
+Explanation:
+
+This diagram demonstrates the chronological flow of events when a user registers.
+
+### API Endpoint Component Diagram
+
+This diagram shows internal backend components.
+
+                 +----------------------+
+                 |   Flask Application  |
+                 +----------+-----------+
+                            |
+        +-------------------+-------------------+
+        |                                       |
+        ▼                                       ▼
++---------------+                     +-------------------+
+|  Route Layer  |                     |  Utility Services |
+| /api/register |                     |                   |
++-------+-------+                     | - Email Sender    |
+        |                             | - Token Generator |
+        ▼                             +---------+---------+
++---------------+                               |
+| Validation    |                               |
+| - Fields      |                               |
+| - Email       |                               |
+| - Password    |                               |
++-------+-------+                               |
+        |                                       |
+        ▼                                       ▼
++---------------+                     +-------------------+
+| Business Logic|                     | Security Layer    |
+| Create User   |                     | Password Hashing  |
++-------+-------+                     +---------+---------+
+        |                                       |
+        ▼                                       |
++----------------------+
+|      Database        |
+|       Users          |
+
+
+
+## 5. Reflection Questions
+Which parts of the API were most challenging to document?
+
+The most challenging parts were identifying all possible error responses and understanding the validation logic implemented in the endpoint. Documenting edge cases such as duplicate usernames, invalid email formats, and weak passwords required careful examination of the code.
+
+How did you adjust your prompts to get better results?
+
+Initially, the prompts produced very high-level documentation. I improved the results by making the prompts more specific, asking the AI to include:
+
+Request and response examples
+
+HTTP status codes
+
+Error scenarios
+
+Field descriptions
+
+This produced more structured and complete documentation.
+
+Which documentation format was most effective?
+
+The OpenAPI/Swagger format was the most effective because it can be integrated into tools like Swagger UI and Postman. It allows developers to automatically generate interactive documentation and test API endpoints directly.
+
+How would you incorporate this approach into your workflow?
+
+I would incorporate AI-assisted documentation into the development workflow by:
+
+Generating API documentation immediately after writing endpoints.
+
+Converting documentation into OpenAPI format for automated API docs.
+
+Including documentation generation as part of code reviews.
+
+Keeping API documentation synchronized with backend changes.
+
+This approach would improve developer productivity and ensure APIs remain well documented

@@ -567,6 +567,14 @@ Where n IS THE TOTAL NUMBER OF UNIQUE TASKS.
 
 ### 1. Original API Endpoint Code
 
+API Name: User Registration API
+Endpoint: POST /api/users/register
+Framework: Flask
+Database: SQLAlchemy
+Authentication: Password Hashing
+Response Format: JSON
+
+
 This is the endpoint that was documented.
 
 @app.route('/api/users/register', methods=['POST'])
